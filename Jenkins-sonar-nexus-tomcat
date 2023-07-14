@@ -13,13 +13,7 @@ pipeline{
                git credentialsId: 'snreddyboggu', url: 'https://github.com/snreddyboggu/https-github.com-srinicloud87-myweb.git'
             }
         }
-        stage("Maven Build"){
-            steps{
-                sh "mvn clean package"
-                
-            }
-        }
-        
+       
        
 
     }
