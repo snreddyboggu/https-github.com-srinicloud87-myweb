@@ -1,11 +1,11 @@
 pipeline{
     agent { label 'slave' }
      tools {
-        maven 'Maven'
+       maven 'Maven-3.6.1'
     }
     
     environment{
-        PATH = "/usr/share/apache-maven"
+        PATH = "/opt/maven3/bin:$PATH"
     }
     stages{
         stage("Git Checkout"){
@@ -13,8 +13,28 @@ pipeline{
                git credentialsId: 'snreddyboggu', url: 'https://github.com/snreddyboggu/https-github.com-srinicloud87-myweb.git'
             }
         }
-       
-       
+        stage("Maven Build"){
+            steps{
+                sh "mvn clean  package"
+                
+            }
+        }
+        
+        stage("deploy-dev"){
+            steps{
+                sshagent(['slave']) {
+                sh """
+                    scp -o StrictHostKeyChecking=no target/myweb-8.2.0.war  ec2-user@184.72.188.23:/home/ec2-user/apache-tomcat-9.0.76/webapps/
+                    
+                    ssh ec2-user@184.72.188.23 /home/ec2-user/apache-tomcat-9.0.76/bin/shutdown.sh
+                    
+                    ssh ec2-user@184.72.188.23 /home/ec2-user/apache-tomcat-9.0.76/bin/startup.sh
+                
+                """
+            }
+            
+            }
+        }
 
     }
 }
